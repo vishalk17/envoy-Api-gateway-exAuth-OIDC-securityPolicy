@@ -1,0 +1,22 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: jwt-auth-policy
+  namespace: test-vish
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: protected-route
+  extAuth:
+    failOpen: false
+    http:
+      backendRefs:
+      - name: jwt-service
+        port: 8080
+      headersToBackend:
+      - X-Customer-ID
+      - X-Account-ID  
+      - X-User-ID
+      - X-Token-Verified
+      - X-Token-Expiration

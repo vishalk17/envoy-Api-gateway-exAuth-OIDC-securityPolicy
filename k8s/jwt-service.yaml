@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jwt-service
+  namespace: test-vish
+  labels:
+    app: jwt-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jwt-service
+  template:
+    metadata:
+      labels:
+        app: jwt-service
+    spec:
+      containers:
+      - name: jwt-service
+        image: ghcr.io/vishalk17/jwt-service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          value: "postgres://postgres:password@postgres:5432/jwt_service?sslmode=disable"
+        - name: PORT
+          value: "8080"
+        - name: LOG_LEVEL
+          value: "DEBUG"  # Set to DEBUG to see sensitive details, INFO to hide them
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8080
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8080
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jwt-service
+  namespace: test-vish
+  labels:
+    app: jwt-service
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  selector:
+    app: jwt-service
+  type: ClusterIP

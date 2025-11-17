@@ -1,0 +1,31 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: jwt-gateway
+  namespace: test-vish
+spec:
+  gatewayClassName: eg  # Using the existing Envoy Gateway GatewayClass
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: protected-route
+  namespace: test-vish
+spec:
+  parentRefs:
+  - name: jwt-gateway
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: nginx-backend
+      port: 80

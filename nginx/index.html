@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Protected Backend Service</title>
+    <meta name="customer-id" content="">
+    <meta name="account-id" content="">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        .header { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .content { margin: 20px 0; background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .auth-info { background-color: #e8f4fd; padding: 15px; border-left: 4px solid #3498db; margin: 15px 0; }
+        .request-info { background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; }
+        .header-info { font-family: monospace; background-color: #f8f9fa; padding: 10px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Protected Backend Service</h1>
+    </div>
+    
+    <div class="content">
+        <p>This is a sample backend service protected by JWT authentication.</p>
+        <p>Only requests with valid JWT tokens should reach this page!</p>
+        
+        <div class="auth-info">
+            <h3>Authentication Information Received:</h3>
+            <div class="header-info">Customer ID: <span id="customerId">[Not provided]</span></div>
+            <div class="header-info">Account ID: <span id="accountId">[Not provided]</span></div>
+            <div class="header-info">User ID: <span id="userId">[Not provided]</span></div>
+        </div>
+        
+        <div class="request-info">
+            <h3>Request Details:</h3>
+            <div class="header-info">Request URI: <span id="requestUri">[URI]</span></div>
+            <div class="header-info">Request Method: <span id="requestMethod">[Method]</span></div>
+            <div class="header-info">User Agent: <span id="userAgent">[User Agent]</span></div>
+        </div>
+        
+        <h3>Available Endpoints:</h3>
+        <ul>
+            <li><code>/</code> - Main page (shows auth info)</li>
+            <li><code>/api/data</code> - API endpoint (shows auth info in JSON)</li>
+            <li><code>/headers</code> - All received headers (for debugging)</li>
+            <li><code>/health</code> - Health check</li>
+        </ul>
+    </div>
+
+    <script>
+        // Populate authentication info from the nginx response
+        // When nginx processes the request, it will replace these placeholders with actual header values
+        document.getElementById('customerId').textContent = 
+            document.querySelector('meta[name="customer-id"]')?.content || 
+            getHeaderFromUrl('customer_id') || 
+            '$http_x_customer_id' !== '' ? '$http_x_customer_id' : '[Not provided by gateway]';
+            
+        document.getElementById('accountId').textContent = 
+            document.querySelector('meta[name="account-id"]')?.content || 
+            getHeaderFromUrl('account_id') || 
+            '$http_x_account_id' !== '' ? '$http_x_account_id' : '[Not provided by gateway]';
+
+        document.getElementById('userId').textContent = 
+            document.querySelector('meta[name="user-id"]')?.content || 
+            getHeaderFromUrl('user_id') || 
+            '$http_x_user_id' !== '' ? '$http_x_user_id' : '[Not provided by gateway]';
+        
+        // Populate request details
+        document.getElementById('requestUri').textContent = window.location.pathname;
+        document.getElementById('requestMethod').textContent = 'GET';
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+
+        function getHeaderFromUrl(paramName) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(paramName);
+        }
+    </script>
+</body>
+</html>

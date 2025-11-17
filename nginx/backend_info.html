@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Protected Backend Service</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        .header { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .content { margin: 20px 0; background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .auth-info { background-color: #e8f4fd; padding: 15px; border-left: 4px solid #3498db; margin: 15px 0; }
+        .request-info { background-color: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0; }
+        .header-info { font-family: monospace; background-color: #f8f9fa; padding: 10px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Protected Backend Service</h1>
+    </div>
+    
+    <div class="content">
+        <p>This is a sample backend service protected by JWT authentication.</p>
+        <p>Only requests with valid JWT tokens should reach this page!</p>
+        
+        <div class="auth-info">
+            <h3>Authentication Information Received:</h3>
+            <div class="header-info">Customer ID: <span id="customerId">$http_x_customer_id</span></div>
+            <div class="header-info">Account ID: <span id="accountId">$http_x_account_id</span></div>
+            <div class="header-info">User ID: <span id="userId">$http_x_user_id</span></div>
+        </div>
+        
+        <div class="request-info">
+            <h3>Request Details:</h3>
+            <div class="header-info">Request URI: <span id="requestUri">$request_uri</span></div>
+            <div class="header-info">Request Method: <span id="requestMethod">$request_method</span></div>
+            <div class="header-info">Remote Address: <span id="remoteAddr">$remote_addr</span></div>
+            <div class="header-info">User Agent: <span id="userAgent">$http_user_agent</span></div>
+        </div>
+        
+        <h3>Available Endpoints:</h3>
+        <ul>
+            <li><code>/</code> - Main page (shows auth info)</li>
+            <li><code>/api/</code> - API endpoint (shows auth info in JSON)</li>
+            <li><code>/headers</code> - All received headers (for debugging)</li>
+            <li><code>/health</code> - Health check</li>
+        </ul>
+    </div>
+
+    <script>
+        // Replace placeholder values with actual values if needed
+        function replacePlaceholders() {
+            // The nginx configuration will have already replaced the values,
+            // but we can still process them with JS as a fallback
+            const placeholders = {
+                '$http_x_customer_id': document.querySelector('meta[name="x-customer-id"]')?.content || 'Not provided',
+                '$http_x_account_id': document.querySelector('meta[name="x-account-id"]')?.content || 'Not provided',
+                '$http_x_user_id': document.querySelector('meta[name="x-user-id"]')?.content || 'Not provided',
+                '$request_uri': window.location.pathname,
+                '$request_method': 'GET',
+                '$remote_addr': 'Not directly available in browser',
+                '$http_user_agent': navigator.userAgent
+            };
+            
+            // Update elements with the values
+            for (const [placeholder, value] of Object.entries(placeholders)) {
+                document.querySelectorAll(`[id*="Id"], [id*="Addr"], [id*="Method"], [id*="Agent"]`).forEach(element => {
+                    if (element.textContent === placeholder) {
+                        element.textContent = value;
+                    }
+                });
+            }
+        }
+        
+        // Call the function when the page loads
+        document.addEventListener('DOMContentLoaded', replacePlaceholders);
+    </script>
+</body>
+</html>
