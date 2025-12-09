@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bakend-oidc
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bakend-oidc
+  template:
+    metadata:
+      labels:
+        app: bakend-oidc
+    spec:
+      containers:
+      - name: bakend-oidc
+        image: ghcr.io/vishalk17/bakend-oidc:v2
+        ports:
+        - containerPort: 80                      
+        env:
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "mypassword"
+        - name: DB_NAME
+          value: "usersdb"
+        - name: BACKEND_PORT
+          value: "80"                             
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bakend-oidc
+  namespace: default
+spec:
+  selector:
+    app: bakend-oidc
+  ports:
+  - port: 80                                    
+    targetPort: 80

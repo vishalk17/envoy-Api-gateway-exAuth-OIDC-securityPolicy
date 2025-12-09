@@ -1,0 +1,34 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: microsoft-oidc-all
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: bakend-oidc-route
+
+  oidc:
+    provider:
+      # ✔ Must use /common for multi-tenant + personal Microsoft accounts
+      issuer: "https://login.microsoftonline.com/common/v2.0"
+      authorizationEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
+      tokenEndpoint: "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+
+    clientID: "cdeefe35-06ad-4334-a074-0c91d70fc6f1"
+
+    clientSecret:
+      name: "microsoft-oidc-client-secret"
+
+    scopes:
+      - "openid"
+      - "profile"
+      - "email"
+
+# Ref.: https://gateway.envoyproxy.io/docs/tasks/security/oidc/#create-a-securitypolicy
+# redirectURL and logoutPath must match one of the HTTPRoutes associated with the Gateway. 
+    redirectURL: "https://vishalk17.kavish.world/bakend-oidc-route/oauth2/callback"
+    logoutPath: "/bakend-oidc-route/logout"
+    
+    forwardAccessToken: true
+    refreshToken: true

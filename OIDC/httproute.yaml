@@ -1,0 +1,26 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bakend-oidc-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: envoy-gateway
+
+  hostnames:
+  - vishalk17.kavish.world
+
+  rules:
+  - matches:
+      # Allow all your app paths
+      - path:
+          type: PathPrefix
+          value: /
+
+      # REQUIRED: Allow envoy’s OAuth callback and login endpoints
+      - path:
+          type: PathPrefix
+          value: /oauth2
+    backendRefs:
+    - name: bakend-oidc
+      port: 80
