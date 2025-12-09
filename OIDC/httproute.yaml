@@ -17,10 +17,6 @@ spec:
           type: PathPrefix
           value: /
 
-      # REQUIRED: Allow envoy’s OAuth callback and login endpoints
-      - path:
-          type: PathPrefix
-          value: /oauth2
     backendRefs:
     - name: bakend-oidc
       port: 80
